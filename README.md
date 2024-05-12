@@ -1,1 +1,1 @@
-# semantic-land-segment-hf
+# End-to-End Semantic Segmentation of Landcover
