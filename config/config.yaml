@@ -5,3 +5,11 @@ data_ingestion:
   source_url: https://landcover.ai.linuxpolska.com/download/landcover.ai.v1.zip
   local_data_path: artifacts/data_ingestion/landcover_data.zip
   unzip_dir: artifacts/data_ingestion/landcover_v1
+
+data_preprocessing:
+  root_dir: artifacts/data_preprocessing
+  STATUS_FILE: artifacts/data_preprocessing/status.txt
+  data_path: artifacts/data_ingestion/landcover_v1
+  PATCH_SIZE: 256
+  patch_data_path: artifacts/data_preprocessing/256x256
+  

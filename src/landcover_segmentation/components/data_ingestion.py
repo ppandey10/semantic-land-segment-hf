@@ -39,6 +39,12 @@ class DataIngestion:
 
             logger.info(f'{unzip_data_path} created!')
 
+            # Delete the zip file after extraction
+            os.remove(self.config.local_data_path)  
+            logger.info(f'{self.config.local_data_path} deleted!')
+
         else:
             logger.info(f'{self.config.unzip_dir} already exits!')
-
+            # # Delete the zip file after extraction
+            # os.remove(self.config.local_data_path)
+            # logger.info(f'{self.config.local_data_path} deleted!')
