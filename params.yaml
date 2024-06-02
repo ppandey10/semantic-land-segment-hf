@@ -1,1 +1,5 @@
-key: value
+SegmentationModelArguements:
+  BACKBONE: 'resnet34'
+  pretrained: 'imagenet'
+  n_classes: 5
+  batch_size: 4

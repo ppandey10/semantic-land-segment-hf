@@ -15,3 +15,12 @@ class DataPreprocessingConfig:
     data_path: Path
     PATCH_SIZE: int
     patch_data_path: Path
+
+@dataclass(frozen=True)
+class DataLoaderConfig:
+    root_dir: Path
+    preprocessed_data_path: Path
+    BACKBONE: str
+    pretrained: str
+    n_classes: int
+    batch_size: int

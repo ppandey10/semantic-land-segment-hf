@@ -19,7 +19,7 @@ class DataIngestion:
         self.filename = config.local_data_path
 
     def download_data_from_url(self):
-        if not os.path.exists(self.config.local_data_path):
+        if not os.path.exists(self.config.local_data_path) and not os.path.exists(self.config.unzip_dir):
             filename, headers = rqst.urlretrieve(
                 url=self.config.source_url,
                 filename=self.config.local_data_path
@@ -45,6 +45,3 @@ class DataIngestion:
 
         else:
             logger.info(f'{self.config.unzip_dir} already exits!')
-            # # Delete the zip file after extraction
-            # os.remove(self.config.local_data_path)
-            # logger.info(f'{self.config.local_data_path} deleted!')

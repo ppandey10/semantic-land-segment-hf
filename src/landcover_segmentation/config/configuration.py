@@ -1,7 +1,11 @@
 from pathlib import Path
 from landcover_segmentation.constants import *
 from landcover_segmentation.utils.common import read_yaml, create_directories
-from landcover_segmentation.entity import DataIngestionConfig, DataPreprocessingConfig
+from landcover_segmentation.entity import (
+    DataIngestionConfig, 
+    DataPreprocessingConfig, 
+    DataLoaderConfig
+)
 
 class ConfigurationManager:
     def __init__(
@@ -42,3 +46,21 @@ class ConfigurationManager:
         )
 
         return data_preprocessing_config
+    
+    def get_data_loader_config(self) -> DataLoaderConfig:
+        config = self.config.data_loader
+        params = self.params.SegmentationModelArguements
+
+        # create directory
+        create_directories([config.root_dir])
+
+        data_loader_config = DataLoaderConfig(
+            root_dir=config.root_dir,
+            preprocessed_data_path=config.preprocessed_data_path,
+            BACKBONE=params.BACKBONE,
+            pretrained=params.pretrained,
+            n_classes=params.n_classes,
+            batch_size=params.batch_size
+        )
+
+        return data_loader_config

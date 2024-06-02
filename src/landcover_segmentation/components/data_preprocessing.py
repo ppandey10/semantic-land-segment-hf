@@ -113,7 +113,6 @@ class DataPreprocessing:
                         for i in range(mask_patches.shape[0]):
                             for j in range(mask_patches.shape[1]):
                                 single_mask_patch = mask_patches[i,j,:,:]
-                                single_mask_patch = single_mask_patch[0]
 
                                 # save individual patch
                                 cv2.imwrite(
