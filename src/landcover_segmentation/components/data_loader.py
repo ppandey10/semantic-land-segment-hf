@@ -117,7 +117,7 @@ class SegDataLoader:
             )
         
 
-        train_loader = DataLoader(
+        data_loader = DataLoader(
             dataset=dataset,
             batch_size=self.config.batch_size,
             shuffle=True,
@@ -126,7 +126,6 @@ class SegDataLoader:
             worker_init_fn=lambda _: torch.manual_seed(24)
         )
 
-        for img, mask in train_loader:
-            print(mask.shape)
+        for img, mask in data_loader:
             img, mask = self.add_single_img_processing(img=img, mask=mask)
             yield (img, mask)
