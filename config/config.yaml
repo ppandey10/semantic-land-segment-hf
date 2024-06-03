@@ -16,3 +16,7 @@ data_preprocessing:
 data_loader:
   root_dir: artifacts/data_loader
   preprocessed_data_path: artifacts/data_preprocessing/final_dataset
+
+model_trainer:
+  root_dir: artifacts/model_trainer
+  preprocessed_data_path: artifacts/data_preprocessing/final_dataset

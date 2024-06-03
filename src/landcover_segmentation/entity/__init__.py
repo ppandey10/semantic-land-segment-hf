@@ -8,6 +8,7 @@ class DataIngestionConfig:
     local_data_path: Path
     unzip_dir: Path
 
+
 @dataclass(frozen=True)
 class DataPreprocessingConfig:
     root_dir: Path
@@ -15,6 +16,7 @@ class DataPreprocessingConfig:
     data_path: Path
     PATCH_SIZE: int
     patch_data_path: Path
+
 
 @dataclass(frozen=True)
 class DataLoaderConfig:
@@ -24,3 +26,18 @@ class DataLoaderConfig:
     pretrained: str
     n_classes: int
     batch_size: int
+
+
+@dataclass(frozen=True)
+class ModelTrainerConfig:
+    root_dir: Path
+    preprocessed_data_path: Path
+    BACKBONE: str
+    encoder_weights: str
+    DEVICE: str
+    n_classes: int
+    epochs: int
+    activation: str
+    loss: str
+    optimizer: str
+    metrics: str

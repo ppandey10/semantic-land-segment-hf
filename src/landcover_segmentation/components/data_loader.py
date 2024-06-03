@@ -81,11 +81,12 @@ class SegDataLoader:
         scaler = MinMaxScaler()
         img = scaler.fit_transform(img.reshape(-1, img.shape[-1])).reshape(img.shape)
         img = self.preprocess_input(img)  # Preprocess based on the pretrained backbone...
+        img = torch.from_numpy(img)
         
         # Convert mask to one-hot encoding
         mask = F.one_hot(mask.to(torch.int64), num_class)  # Convert to one-hot
         
-        return img, mask
+        return img.permute(0, 3, 1, 2), mask.to(torch.float64).permute(0, 3, 1, 2)
 
     def TrainGenerator(self, data_type: str):
         transform = albu.Compose([
@@ -125,6 +126,8 @@ class SegDataLoader:
             drop_last=True,
             worker_init_fn=lambda _: torch.manual_seed(24)
         )
+        
+        self._total_batches = len(data_loader)
 
         for img, mask in data_loader:
             img, mask = self.add_single_img_processing(img=img, mask=mask)
