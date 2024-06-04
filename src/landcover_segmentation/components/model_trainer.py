@@ -41,11 +41,16 @@ class ModelTrainer:
         
         return loss_fnc(out, mask)
     
-    def metrics(self):
-        if self.config.metrics == 'iou':
-            metrics = [smp.metrics.iou_score] 
+    def metrics(self, out, targ):
 
-        return metrics
+        METRICS = ['iou', 'accuracy', 'f1', 'f2', 'precision']
+
+        tp, fp, fn, tn = smp.metrics.get_stats(out, targ, mode='multilabel', threshold=0.5)
+
+        if self.config.metrics == 'iou':
+            iou_score = smp.metrics.iou_score(tp, fp, fn, tn, reduction="micro")
+
+        return iou_score
     
     def optimizer(self):
         if self.config.optimizer == 'adam':
@@ -87,48 +92,57 @@ class ModelTrainer:
         if device=='cpu':
             self.config.DEVICE = device
         
-        model = self.smp_model()
-        model.double().to(device)
+        self.model = self.smp_model()
+        self.model.double().to(device)
 
         train_dataloader, train_total_batch = self.train_loader()
         val_dataloader, val_total_batch = self.val_loader()
+        test_dataloader, test_total_batch = self.test_loader()
 
         # train model
         num_epochs = self.config.epochs
         for epoch in range(num_epochs):
-            model.train()
+            self.model.train()
             epoch_loss = 0
-            with tqdm(total=train_total_batch, desc=f"Epoch {epoch+1}/{num_epochs}", unit="batch") as pbar:
-                for images, masks in train_dataloader:
+            train_iou = 0
+            with tqdm(total=test_total_batch, desc=f"Epoch {epoch+1}/{num_epochs}", unit="batch") as pbar:
+                for images, masks in test_dataloader:
                     images = images.double().to(device)
                     masks = masks.double().to(device)
                     
                     self.optimizer().zero_grad()
-                    outputs = model(images)
+                    outputs = self.model(images)
                     loss = self.loss_fn(outputs, masks)
                     loss.backward()
                     self.optimizer().step()
                     epoch_loss += loss.item()
+
+                    train_iou_val = self.metrics(outputs, masks)
+                    train_iou += train_iou_val
                     
-                    pbar.set_postfix({"loss": epoch_loss/train_total_batch})
+                    pbar.set_postfix({"loss": epoch_loss, "iou": train_iou_val})
                     pbar.update(1)
 
-            logger.info(f"Epoch {epoch+1}/{num_epochs}, Loss: {epoch_loss/train_total_batch}")
+            logger.info(f"Epoch {epoch+1}/{num_epochs}, Loss: {epoch_loss/test_total_batch}")
 
 
             # Validation
-            model.eval()
+            self.model.eval()
             val_loss = 0
+            epoch_iou_val = 0
             with tqdm(total=val_total_batch, desc=f"Validation {epoch+1}/{num_epochs}", unit="batch") as pbar:
                 with torch.no_grad():
                     for images, masks in val_dataloader:
-                        images = images.to(device)
-                        masks = masks.to(device)
-                        outputs = model(images)
+                        images = images.double().to(device)
+                        masks = masks.double().to(device)
+                        outputs = self.model(images)
                         loss = self.loss_fn(outputs, masks)
                         val_loss += loss.item()
                         
                         pbar.set_postfix({"val_loss": val_loss/val_total_batch})
                         pbar.update(1)
 
-            logger.info(f"Validation Loss: {val_loss/val_total_batch}")
+            logger.info(f"Validation Loss: {val_loss/val_total_batch},  IoU: {epoch_iou_val/val_total_batch}")
+
+    def save_model(self):
+        self.model.save_pretrained(self.config.root_dir)

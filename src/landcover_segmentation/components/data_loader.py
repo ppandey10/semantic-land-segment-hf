@@ -71,6 +71,7 @@ class SegDataLoader:
         config: DataLoaderConfig
     ):
         self.config = config
+        self.batch_size = config.batch_size
         self.preprocess_input = get_preprocessing_fn(self.config.BACKBONE, pretrained=self.config.pretrained)
 
     def add_single_img_processing(self, img, mask):
@@ -84,9 +85,10 @@ class SegDataLoader:
         img = torch.from_numpy(img)
         
         # Convert mask to one-hot encoding
-        mask = F.one_hot(mask.to(torch.int64), num_class)  # Convert to one-hot
-        
-        return img.permute(0, 3, 1, 2), mask.to(torch.float64).permute(0, 3, 1, 2)
+        mask = to_categorical(mask, num_class)  
+        mask = torch.from_numpy(mask) 
+              
+        return img.permute(0, 3, 1, 2), mask.permute(0, 3, 1, 2)
 
     def TrainGenerator(self, data_type: str):
         transform = albu.Compose([
@@ -104,6 +106,7 @@ class SegDataLoader:
             )
 
         elif data_type=='test':
+            self.batch_size = 8
             dataset = DataLoaderSegmentation(
                 imgs_path=os.path.join(self.config.preprocessed_data_path, 'test_images', data_type),
                 masks_path=os.path.join(self.config.preprocessed_data_path, 'test_masks', data_type),
@@ -111,6 +114,7 @@ class SegDataLoader:
             )
             
         elif data_type=='val':
+            self.batch_size = 8
             dataset = DataLoaderSegmentation(
                 imgs_path=os.path.join(self.config.preprocessed_data_path, 'val_images', data_type),
                 masks_path=os.path.join(self.config.preprocessed_data_path, 'val_masks', data_type),
@@ -120,7 +124,7 @@ class SegDataLoader:
 
         data_loader = DataLoader(
             dataset=dataset,
-            batch_size=self.config.batch_size,
+            batch_size=self.batch_size,
             shuffle=True,
             num_workers=8,
             drop_last=True,

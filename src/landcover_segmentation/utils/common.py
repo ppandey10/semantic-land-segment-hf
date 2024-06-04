@@ -7,7 +7,7 @@ from box.exceptions import BoxValueError
 from ensure import ensure_annotations
 from box import ConfigBox
 
-from txtsummarizer.logging import logger
+from landcover_segmentation.logging import logger
 
 @ensure_annotations
 def read_yaml(path_to_yaml: Path) -> ConfigBox: # Usage and advantage of ConfigBox is discussed in a test.ipynb
